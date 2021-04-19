@@ -109,7 +109,7 @@ venv/
 ENV/
 env.bak/
 venv.bak/
-probabilistic_hunting_venv/
+colorization_venv/
 
 # Spyder project settings
 .spyderproject
