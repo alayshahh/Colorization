@@ -24,12 +24,12 @@ $ source colorization_venv/bin/activate
 
 ### 4. Install packages
 ```
-(probabilistic_hunting_venv) $ pip install -r requirements.txt
+(colorization_venv) $ pip install -r requirements.txt
 ```
 
 ### 5. Update `requirements.txt`
 _Note: Only do this whenever you add a new lib or package to the project so that the change is reflected on github_
 
 ```bash
-(probabilistic_hunting_venv) $ pip freeze > requirements.txt
+(colorization_venv) $ pip freeze > requirements.txt
 ```
