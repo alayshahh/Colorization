@@ -30,9 +30,10 @@ def kmeans() -> list:
     for index, cluster in enumerate(clusters):
         print(f"\tcluster {index} is centered at {cluster.get_center()}")
 
+    #define a delta that ensures that the k_means converges
     delta  = 1
     iteration = 0
-    while delta>=1:
+    while delta>=0.05: #here we have defined convergence as the total change in for all cluster centers is less than 0.05
         delta = 0
         # we want to remove the points from every cluster since now we are recomputing which cluster they should
         # be belonging to

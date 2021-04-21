@@ -1,2 +1,2 @@
 #!/bin/sh
-python3 src/setup.py
+python3 src/k_means.py

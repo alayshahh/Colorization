@@ -34,6 +34,7 @@ class Cluster:
     def update_center_around_points(self) -> float:
         """
         Recompute self.center to be the center of self.points
+        Returns the total change that the update caused, used for tracking convergence
         """
         old_center = self.center
         new_center = [0, 0, 0]  # x,y,z
