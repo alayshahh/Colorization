@@ -35,9 +35,8 @@ def find_patches(location: tuple):
     """
     closest_patches = []
     patch = get_patch(location)
-    int(WIDTH/2 - 1)
-    for i in range(1, HEIGHT-1):
-        for j in range(1, int(WIDTH/2)-1):
+    for i in range(1, HEIGHT-1):  # 1-255
+        for j in range(1, int(WIDTH/2) - 1):  # 1-127
             cur_patch = get_patch((i, j))
             # delta  = total difference in the B&W pxiel vlaues for current patch and original patch
             delta = find_delta(patch, cur_patch)
@@ -51,20 +50,26 @@ def find_patches(location: tuple):
             else:
                 closest_patches.append((delta, (i, j)))
                 closest_patches.sort(key=lambda tup: tup[0])
-    print(closest_patches)
+    # print(closest_patches)
     return [closest_patches[i][1] for i in range(6)]
 
 
-if __name__ == '__main__':
-    similar_patches = []
-    for x in tqdm(range(HEIGHT-1)):
-        row_patches = []
-        for y in range(int(WIDTH/2), int(WIDTH-1)):
-            print(x, y)
-            print(GREY_VALUES[x, y])
-            patch = get_patch((x, y))
-            row_patches.append(find_patches((x, y)))
-        similar_patches.append(row_patches)
+def get_similar_patches():
+    # will hold the similar patches for each pixel in HEIGHT x WIDTH/2
+    similar_patches = np.zeros((HEIGHT, WIDTH, 6, 2))
+    # use (1,  HEIGHT -1) because we dont need to look at edge pixled b/c no 3x3 patch
+    for x in tqdm(range(1, HEIGHT - 1)):  # 1-255
+        for y in range(int(WIDTH/2) + 1, WIDTH - 1):  # 129 - 255
+            # print(x, y)
+            # GREY_VALUES[x, y]
+            for i, patch in enumerate(find_patches((x, y))):
+                similar_patches[x, y, i,
+                                0], similar_patches[x, y, i, 1] = patch
+
     similar_patches = np.array(similar_patches)
     print(similar_patches.shape)
     np.save('./assets/closest_patches.npy', similar_patches)
+
+
+if __name__ == '__main__':
+    get_similar_patches()
