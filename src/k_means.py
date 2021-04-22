@@ -41,7 +41,7 @@ def kmeans() -> list:
             cluster.clear_points()
 
         for i in tqdm(range(HEIGHT), desc="pixel y axes"):
-            for j in range(int(WIDTH/2)):
+            for j in range(WIDTH):
                 # candidate cluster is the cluster that the point is closest to
                 candidate_cluster = clusters[0]
                 distance_to_candidate_cluster = dist(
@@ -71,9 +71,9 @@ def kmeans() -> list:
         for index, cluster in enumerate(clusters):
             print(f"\tcluster {index} is centered at {cluster.get_center()}, and the number of points in the cluster are {len(cluster.get_points())}")
     
-    reduced_colors = np.zeros((HEIGHT, int(WIDTH/2), 3))
+    reduced_colors = np.zeros((HEIGHT,WIDTH, 3))
     for i in range(HEIGHT):
-        for j in range(int(WIDTH/2)):
+        for j in range(WIDTH):
             candidate_cluster = clusters[0]
             distance_to_candidate_cluster = dist(
                     candidate_cluster.get_center(), RGB_VALUES[i, j])
@@ -85,11 +85,11 @@ def kmeans() -> list:
                         distance_to_candidate_cluster = distance_to_new_cluster
             center = candidate_cluster.get_center()
             reduced_colors[i,j,0], reduced_colors[i,j,1], reduced_colors[i,j,2] = center[0], center[1], center[2]
-
-    print(RGB_VALUES.shape)
-    print(reduced_colors.shape)
+    reduced_colors = reduced_colors.astype(np.uint8)
+    np.save("./assets/five_colored.npy", reduced_colors)
     image = Image.fromarray(reduced_colors.astype(np.uint8))
-    image.save("./assets/reduced_colors.png")
+
+    image.save("./assets/five_colored.png")
 
     return clusters
 
@@ -99,7 +99,7 @@ if __name__ == "__main__":
     clusters = kmeans()
 
     five_colors = np.array([[cluster.get_center() for cluster in clusters]]).astype(np.uint8)
-    np.save("./assets/five_means_values.npy",five_colors)
+    np.save("./assets/five_means.npy",five_colors)
     image = Image.fromarray(five_colors, 'RGB')
-    image.save('./assets/kmeans_out.png')
+    image.save('./assets/five_means_out.png')
     print("Saved image!")
