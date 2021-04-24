@@ -5,7 +5,7 @@ from tqdm import tqdm
 import random
 from pprint import pprint
 from cluster import Cluster
-from constants import PATH_TO_GREYSCALE, PATH_TO_IMG, WIDTH, HEIGHT, RGB_VALUES, GREY_VALUES
+from constants import WIDTH, HEIGHT, RGB_VALUES
 
 ITERATIONS = 100
 
@@ -46,7 +46,7 @@ def kmeans() -> list:
             cluster.clear_points()
 
         for i in tqdm(range(HEIGHT), desc="pixel y axes"):
-            for j in range(WIDTH):
+            for j in range(int(WIDTH/2)):
                 # candidate cluster is the cluster that the point is closest to
                 candidate_cluster = clusters[0]
                 distance_to_candidate_cluster = dist(
@@ -82,6 +82,9 @@ def kmeans() -> list:
     reduced_colors = np.zeros((HEIGHT, WIDTH, 3))
     for i in range(HEIGHT):
         for j in range(WIDTH):
+            if j > int(WIDTH/2):
+                reduced_colors[i, j] = [0, 0, 0]
+                continue
             candidate_cluster = clusters[0]
             distance_to_candidate_cluster = dist(
                 candidate_cluster.get_center(), RGB_VALUES[i, j])

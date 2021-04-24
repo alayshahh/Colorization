@@ -1,9 +1,12 @@
+from random import randrange
 from numpy import clongfloat
-from constants import WIDTH, HEIGHT, GREY_VALUES, FIVE_MEANS_VALUES
+from numpy.lib.stride_tricks import sliding_window_view
+from constants import WIDTH, HEIGHT, GREY_VALUES, FIVE_COLORED_RGB_VALUES, FIVE_COLORS, BASIC_AGENT_VALUES, SIMILAR_PATCH
 import math
 from queue import PriorityQueue
 import numpy as np
 from tqdm import tqdm
+from PIL import Image
 
 
 def get_patch(location: tuple) -> list:
@@ -21,10 +24,10 @@ def find_delta(patch: list, cur_patch: list):
     delta = 0
     for neighbor in range(9):
         x, y = patch[neighbor]
-        black, white = GREY_VALUES[x, y, 0], GREY_VALUES[x, y, 1]
+        grey = GREY_VALUES[x, y]
         i, j = cur_patch[neighbor]
-        cur_black, cur_white = GREY_VALUES[i, j, 0], GREY_VALUES[i, j, 1]
-        delta += (black-cur_black)**2 + (white - cur_white)**2
+        cur_grey = GREY_VALUES[i, j]
+        delta += (grey - cur_grey)**2
     return math.sqrt(delta)
 
 
@@ -58,8 +61,8 @@ def get_similar_patches():
     # will hold the similar patches for each pixel in HEIGHT x WIDTH/2
     similar_patches = np.zeros((HEIGHT, WIDTH, 6, 2))
     # use (1,  HEIGHT -1) because we dont need to look at edge pixled b/c no 3x3 patch
-    for x in tqdm(range(1, HEIGHT - 1)):  # 1-255
-        for y in range(int(WIDTH/2) + 1, WIDTH - 1):  # 129 - 255
+    for x in tqdm(range(1, HEIGHT - 1)):  # 1-127
+        for y in range(int(WIDTH/2) + 1, WIDTH - 1):  # 65 - 127
             # print(x, y)
             # GREY_VALUES[x, y]
             for i, patch in enumerate(find_patches((x, y))):
@@ -71,5 +74,49 @@ def get_similar_patches():
     np.save('./assets/closest_patches.npy', similar_patches)
 
 
+def find_majority(location: tuple, max_color: list) -> list:
+    max = 0
+    max_index = 0
+    tie = False
+    for index, num in enumerate(max_color):
+        if num > max:
+            max = num
+            max_index = index
+            tie = False
+        if num == max:
+            tie = True
+    if max < 3 or tie == True:  # if no majority or tie
+        i, j = location
+        # get the most similar patch center pixel
+        x, y = int(SIMILAR_PATCH[i, j, 0, 0]), int(SIMILAR_PATCH[i, j, 0, 1])
+        # return the RGB of the most similiar pixel
+        return FIVE_COLORED_RGB_VALUES[x, y]
+    else:
+        # if there is a majority and no tie, then return the most prevalent color
+        return FIVE_COLORS[max_index]
+
+
+def start():
+    for i in range(1, HEIGHT-1):
+        for j in range(int(WIDTH/2)+1, WIDTH-1):
+            # for each pixel in the testing data
+            max_color = [0, 0, 0, 0, 0]  # for each of the five colors
+            for p in range(6):  # go through each of the 6 similar patches
+                patch_i, patch_j = int(SIMILAR_PATCH[i,
+                                                     j, p, 0]), int(SIMILAR_PATCH[i, j, p, 1])
+                middle_pixel_color = FIVE_COLORED_RGB_VALUES[patch_i, patch_j]
+                # increment max_color for the index of the middle pixel's color in FIVE_COLORS
+                for color in range(5):
+                    if middle_pixel_color[0] == FIVE_COLORS[0, color, 0] and middle_pixel_color[1] == FIVE_COLORS[0, color, 1] and middle_pixel_color[2] == FIVE_COLORS[0, color, 2]:
+                        max_color[color] += 1
+                        break
+            # go through to find majority color and set it in the new pixel
+            BASIC_AGENT_VALUES[i, j] = find_majority((i, j), max_color)
+
+
 if __name__ == '__main__':
-    get_similar_patches()
+    # TODO do the basic agent
+    start()
+    print(BASIC_AGENT_VALUES.shape)
+    img = Image.fromarray(BASIC_AGENT_VALUES)
+    img.save('./assets/basic_agent.png')
