@@ -1,9 +1,5 @@
-from random import randrange
-from numpy import clongfloat
-from numpy.lib.stride_tricks import sliding_window_view
 from constants import WIDTH, HEIGHT, GREY_VALUES, FIVE_COLORED_RGB_VALUES, FIVE_COLORS, BASIC_AGENT_VALUES, SIMILAR_PATCH
 import math
-from queue import PriorityQueue
 import numpy as np
 from tqdm import tqdm
 from PIL import Image
@@ -74,7 +70,7 @@ def get_similar_patches():
     np.save('./assets/closest_patches.npy', similar_patches)
 
 
-def find_majority(location: tuple, max_color: list) -> list:
+def find_majority(location: tuple, max_color: list, K_MEANS_MATRIX, K_COLORS) -> list:
     max = 0
     max_index = 0
     tie = False
@@ -85,38 +81,39 @@ def find_majority(location: tuple, max_color: list) -> list:
             tie = False
         if num == max:
             tie = True
-    if max < 3 or tie == True:  # if no majority or tie
+    if max < int(len(max_color)/2) + 1 or tie == True:  # if no majority or tie
         i, j = location
         # get the most similar patch center pixel
         x, y = int(SIMILAR_PATCH[i, j, 0, 0]), int(SIMILAR_PATCH[i, j, 0, 1])
         # return the RGB of the most similiar pixel
-        return FIVE_COLORED_RGB_VALUES[x, y]
+        return K_MEANS_MATRIX[x, y]
     else:
         # if there is a majority and no tie, then return the most prevalent color
-        return FIVE_COLORS[max_index]
+        return K_COLORS[max_index]
 
 
-def start():
+def start(k: int, K_MEANS_MATRIX, K_COLORS, OUT_MATRIX):
     for i in range(1, HEIGHT-1):
         for j in range(int(WIDTH/2)+1, WIDTH-1):
             # for each pixel in the testing data
-            max_color = [0, 0, 0, 0, 0]  # for each of the five colors
+            max_color = [0 for _ in range(k)]  # for each of the five colors
             for p in range(6):  # go through each of the 6 similar patches
                 patch_i, patch_j = int(SIMILAR_PATCH[i,
                                                      j, p, 0]), int(SIMILAR_PATCH[i, j, p, 1])
-                middle_pixel_color = FIVE_COLORED_RGB_VALUES[patch_i, patch_j]
+                middle_pixel_color = K_MEANS_MATRIX[patch_i, patch_j]
                 # increment max_color for the index of the middle pixel's color in FIVE_COLORS
                 for color in range(5):
-                    if middle_pixel_color[0] == FIVE_COLORS[0, color, 0] and middle_pixel_color[1] == FIVE_COLORS[0, color, 1] and middle_pixel_color[2] == FIVE_COLORS[0, color, 2]:
+                    if middle_pixel_color[0] == K_COLORS[0, color, 0] and middle_pixel_color[1] == K_COLORS[0, color, 1] and middle_pixel_color[2] == K_COLORS[0, color, 2]:
                         max_color[color] += 1
                         break
             # go through to find majority color and set it in the new pixel
-            BASIC_AGENT_VALUES[i, j] = find_majority((i, j), max_color)
+            OUT_MATRIX[i, j] = find_majority(
+                (i, j), max_color, K_MEANS_MATRIX, K_COLORS)
 
 
 if __name__ == '__main__':
     # TODO do the basic agent
-    start()
-    print(BASIC_AGENT_VALUES.shape)
+    start(5, FIVE_COLORED_RGB_VALUES, FIVE_COLORS, BASIC_AGENT_VALUES)
+    np.save('./assets/basic_agent_values.npy', BASIC_AGENT_VALUES)
     img = Image.fromarray(BASIC_AGENT_VALUES)
     img.save('./assets/basic_agent.png')

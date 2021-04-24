@@ -3,49 +3,38 @@ import numpy as np
 import math
 from tqdm import tqdm
 import random
-from pprint import pprint
 from cluster import Cluster
 from constants import WIDTH, HEIGHT, RGB_VALUES
-
-ITERATIONS = 100
 
 
 def dist(a, b):
     # we know that these are x,y,z tuples
-    return math.sqrt((a[0]-b[0])**2 + (a[1]-b[1])**2 + (a[2]-b[2])**2)
+    return math.sqrt((float(a[0])-float(b[0]))**2 + (float(a[1])-float(b[1]))**2 + (float(a[2])-float(b[2]))**2)
 
 
-def kmeans() -> list:
-    print(RGB_VALUES.shape)
+def kmeans(k: int = 5, alpha: float = 0.25) -> list:
+    # print(RGB_VALUES.shape)
     # Create initial cluster objects
     clusters = [
         Cluster([random.randint(0, 256), random.randint(
-            0, 256), random.randint(0, 256)]),
-        Cluster([random.randint(0, 256), random.randint(
-            0, 256), random.randint(0, 256)]),
-        Cluster([random.randint(0, 256), random.randint(
-            0, 256), random.randint(0, 256)]),
-        Cluster([random.randint(0, 256), random.randint(
-            0, 256), random.randint(0, 256)]),
-        Cluster([random.randint(0, 256), random.randint(
-            0, 256), random.randint(0, 256)])
+            0, 256), random.randint(0, 256)]) for _ in range(k)
     ]
 
-    print("at the start the cluster values are:")
-    for index, cluster in enumerate(clusters):
-        print(f"\tcluster {index} is centered at {cluster.get_center()}")
+    # print("at the start the cluster values are:")
+    # for index, cluster in enumerate(clusters):
+    #     print(f"\tcluster {index} is centered at {cluster.get_center()}")
 
     # define a delta that ensures that the k_means converges
     delta = 1
-    iteration = 0
-    while delta >= 0.25:  # here we have defined convergence as the total change in for all cluster centers is less than 0.05
+    # iteration = 0
+    while delta >= alpha:  # here we have defined convergence as the total change in for all cluster centers is less than 0.05
         delta = 0
         # we want to remove the points from every cluster since now we are recomputing which cluster they should
         # be belonging to
         for cluster in clusters:
             cluster.clear_points()
 
-        for i in tqdm(range(HEIGHT), desc="pixel y axes"):
+        for i in range(HEIGHT):
             for j in range(int(WIDTH/2)):
                 # candidate cluster is the cluster that the point is closest to
                 candidate_cluster = clusters[0]
@@ -72,17 +61,17 @@ def kmeans() -> list:
             delta += cluster.update_center_around_points()
 
         # all the clusterse are
-        print(
-            f"at the end of iteration {iteration} the delta is: {delta} cluster values are:")
-        iteration += 1
-        for index, cluster in enumerate(clusters):
-            print(
-                f"\tcluster {index} is centered at {cluster.get_center()}, and the number of points in the cluster are {len(cluster.get_points())}")
+        # print(
+        #     f"at the end of iteration {iteration} the delta is: {delta} cluster values are:")
+        # iteration += 1
+        # for index, cluster in enumerate(clusters):
+        #     print(
+        #         f"\tcluster {index} is centered at {cluster.get_center()}, and the number of points in the cluster are {len(cluster.get_points())}")
 
     reduced_colors = np.zeros((HEIGHT, WIDTH, 3))
     for i in range(HEIGHT):
         for j in range(WIDTH):
-            if j > int(WIDTH/2):
+            if j > int(WIDTH/2)-1:
                 reduced_colors[i, j] = [0, 0, 0]
                 continue
             candidate_cluster = clusters[0]
@@ -98,21 +87,21 @@ def kmeans() -> list:
             reduced_colors[i, j, 0], reduced_colors[i, j,
                                                     1], reduced_colors[i, j, 2] = center[0], center[1], center[2]
     reduced_colors = reduced_colors.astype(np.uint8)
-    np.save("./assets/five_colored.npy", reduced_colors)
-    image = Image.fromarray(reduced_colors.astype(np.uint8))
 
-    image.save("./assets/five_colored.png")
-
-    return clusters
+    return clusters, reduced_colors
 
 
 # run kmeans
 if __name__ == "__main__":
-    clusters = kmeans()
-
+    clusters, reduced_colors = kmeans()
+    # save values
+    np.save("./assets/five_colored.npy", reduced_colors)
+    np.save('./assets/basic_agent_values.npy', reduced_colors)
+    image = Image.fromarray(reduced_colors)
+    image.save("./assets/five_colored.png")
+    image.save("./assets/basic_agent.png")
     five_colors = np.array([[cluster.get_center()
                            for cluster in clusters]]).astype(np.uint8)
     np.save("./assets/five_means.npy", five_colors)
     image = Image.fromarray(five_colors, 'RGB')
     image.save('./assets/five_means_out.png')
-    print("Saved image!")

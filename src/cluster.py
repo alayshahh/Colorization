@@ -1,6 +1,5 @@
 import random
 
-from PIL.Image import blend
 
 class Cluster:
     def __init__(self, center):
@@ -40,9 +39,10 @@ class Cluster:
         new_center = [0, 0, 0]  # x,y,z
         num_points = len(self.points)
         if num_points == 0:
-            new_center = [random.randint(0,256), random.randint(0,256), random.randint(0,256)]
+            new_center = [random.randint(0, 256), random.randint(
+                0, 256), random.randint(0, 256)]
         else:
-            red_val, green_val, blue_val = 0,0,0
+            red_val, green_val, blue_val = 0, 0, 0
             for point in self.points:
                 red_val += point[0]
                 green_val += point[1]
@@ -51,7 +51,6 @@ class Cluster:
             green_val = green_val/num_points
             blue_val = blue_val/num_points
             new_center = [red_val, green_val, blue_val]
-            
 
         self.center = new_center
-        return abs(new_center[0]- old_center[0]) + abs(new_center[1]- old_center[1]) + abs(new_center[2]- old_center[2])
+        return abs(new_center[0] - old_center[0]) + abs(new_center[1] - old_center[1]) + abs(new_center[2] - old_center[2])

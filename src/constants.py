@@ -1,4 +1,3 @@
-from os import stat_result
 import numpy as np
 
 PATH_TO_IMG = "./assets/bird.png"
