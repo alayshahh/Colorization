@@ -13,6 +13,12 @@ def dist(a, b):
 
 
 def kmeans(k: int = 5, alpha: float = 0.25) -> list:
+    '''
+    takes in an int k and a float alpha, k specifies the number of clusters
+    alpha is a value > 0 that specifes at how close to convergence one wants the algorithm to stop
+    returns the Cluster objects as well as the matrix containing the rgb values for the altered image
+    '''
+
     # print(RGB_VALUES.shape)
     # Create initial cluster objects
     clusters = [

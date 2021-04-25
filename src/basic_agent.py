@@ -23,7 +23,7 @@ def find_delta(patch: list, cur_patch: list):
         grey = GREY_VALUES[x, y]
         i, j = cur_patch[neighbor]
         cur_grey = GREY_VALUES[i, j]
-        delta += (grey - cur_grey)**2
+        delta += (float(grey) - float(cur_grey))**2
     return math.sqrt(delta)
 
 
@@ -54,6 +54,10 @@ def find_patches(location: tuple):
 
 
 def get_similar_patches():
+    '''
+    Computes the similar patches for the whole image
+    run this once
+    '''
     # will hold the similar patches for each pixel in HEIGHT x WIDTH/2
     similar_patches = np.zeros((HEIGHT, WIDTH, 6, 2))
     # use (1,  HEIGHT -1) because we dont need to look at edge pixled b/c no 3x3 patch
@@ -71,6 +75,10 @@ def get_similar_patches():
 
 
 def find_majority(location: tuple, max_color: list, K_MEANS_MATRIX, K_COLORS) -> list:
+    '''
+    Returns an array [r,g,b] for the majority color among the patch centers, 
+    if no majority or tie, the color of the closest matching center is assigned
+    '''
     max = 0
     max_index = 0
     tie = False
@@ -93,6 +101,9 @@ def find_majority(location: tuple, max_color: list, K_MEANS_MATRIX, K_COLORS) ->
 
 
 def start(k: int, K_MEANS_MATRIX, K_COLORS, OUT_MATRIX):
+    '''
+    Color the right half of image based on the basic agent algorithm given
+    '''
     for i in range(1, HEIGHT-1):
         for j in range(int(WIDTH/2)+1, WIDTH-1):
             # for each pixel in the testing data
@@ -112,7 +123,7 @@ def start(k: int, K_MEANS_MATRIX, K_COLORS, OUT_MATRIX):
 
 
 if __name__ == '__main__':
-    # TODO do the basic agent
+    # get_similar_patches()  # run only once values saved in ./assets/closest_patches.npy
     start(5, FIVE_COLORED_RGB_VALUES, FIVE_COLORS, BASIC_AGENT_VALUES)
     np.save('./assets/basic_agent_values.npy', BASIC_AGENT_VALUES)
     img = Image.fromarray(BASIC_AGENT_VALUES)
