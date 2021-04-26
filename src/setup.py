@@ -10,3 +10,5 @@ if __name__ == '__main__':
     bw_array = np.asanyarray(grey_img)
     np.save("./assets/rgb_values.npy", rgb_array)
     np.save("./assets/greyscale_values.npy", bw_array)
+    np.save('./assets/improved_agent/rgb_normal.npy', rgb_array/255)
+    np.save('./assets/improved_agent/greyscale_normal.npy', bw_array/255)
