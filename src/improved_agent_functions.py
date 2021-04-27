@@ -39,12 +39,25 @@ def li_loss(x: Vector, w: np.array, color: Color) -> float:
     '''
     i, j = x.get_location
     y = RGB_NORMALIZED[i, j, color.value]
-    f = np.dot(w, x.get_vector)
+    f = model(x, w)
     return (-y*math.log(f) - (1-y)*math.log(1-f))
 
 
-def update_weights(x: Vector, w: np.array, alpha: float) -> np.array:
+def update_weights(x: Vector, w: np.array, alpha: float, color: Color) -> np.array:
     '''
     returns the updated weight vector
+    to update:  
+        w_t+1 = w_t - alpha((F(x_i)-yi)*x_i)
+
     '''
-    print("updating")
+    i, j = x.get_location
+    y = RGB_NORMALIZED[i, j, color.value]
+    f = model(x, w)
+    return w - alpha*((f - y)*x.get_x_vector)
+
+
+def model(x: Vector, w: np.array) -> float:
+    '''
+    Returns sigmoid(x.w)
+    '''
+    return sigmoid(np.dot(x.get_vector, w))
