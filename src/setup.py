@@ -1,5 +1,6 @@
 from PIL import Image
 import numpy as np
+from numpy.lib import RankWarning
 from constants import *
 
 if __name__ == '__main__':
@@ -12,3 +13,5 @@ if __name__ == '__main__':
     np.save("./assets/greyscale_values.npy", bw_array)
     np.save('./assets/improved_agent/rgb_normal.npy', rgb_array/255)
     np.save('./assets/improved_agent/greyscale_normal.npy', bw_array/255)
+    np.save('./assets/improved_agent/out_matrix.npy',
+            np.zeros((HEIGHT, WIDTH, 3)))
