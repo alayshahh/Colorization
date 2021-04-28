@@ -49,25 +49,25 @@ def training_loss(w: np.array, color: Color) -> float:
 def li_loss(x: Vector, w: np.array, color: Color) -> float:
     '''
     Returns loss for one vector
-    L_i = -y_i ln(F(x_i)) - (1-y_i) ln(1-F(x_i))
+    L_i = (y_i - F(x_i))^2
     '''
     i, j = x.get_location
     y = RGB_NORMALIZED[i, j, color.value]
     f = model(x, w)
-    return (-y*math.log(f) - (1-y)*math.log(1-f))
+    return (y - f)**2
 
 
 def update_weights(x: Vector, w: np.array, alpha: float, color: Color) -> np.array:
     '''
     returns the updated weight vector
     to update:  
-        w_t+1 = w_t - alpha((F(x_i)-yi)*x_i)
-
+        F(x) = sig(x.w)
+        w_t+1 = w_t - alpha(-2(y_i - F(x_i))*F(x_i)(1-F(x_i)))x_i
     '''
     i, j = x.get_location
     y = RGB_NORMALIZED[i, j, color.value]
     f = model(x, w)
-    return np.array(w - alpha*((f - y)*x.get_vector))
+    return w - (alpha*(-2*(y-f))*f*(1-f))*x.get_vector
 
 
 def model(x: Vector, w: np.array) -> float:
