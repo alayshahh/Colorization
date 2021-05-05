@@ -71,6 +71,7 @@ def update_weights(x: Vector, w: np.array, alpha: float, color: Color) -> np.arr
     i, j = x.get_location
     y = RGB_NORMALIZED[i, j, color.value]
     f = model(x, w)
+    # print(2*(f-y)*f*(1-f))
     return w - (alpha*(2*(f-y))*f*(1-f))*x.get_vector
 
 
@@ -97,7 +98,6 @@ def start_training(color: Color) -> np.array:
     WEIGHTS = []
     TRAINING_LOSS = []
     TESTING_LOSS = []
-    COLOR = Color.RED
     # initialize random weight vector (w @ t=0)
     w = np.array([random.uniform(-0.5, 0.5) for _ in range(100)])
     WEIGHTS.append(w)
